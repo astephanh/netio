@@ -8,7 +8,7 @@ from threading import Thread, Event, Lock
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 
 http_server_port = 54321
-AmpPin = 18
+AmpPin = 40
 player = 'tpi'
 
 class MyHttpHandler(BaseHTTPRequestHandler):
@@ -27,11 +27,11 @@ class MyHttpHandler(BaseHTTPRequestHandler):
         try:
             if self.path == "/AmpON":
                 self.logger.info("Starting AMP")
-                GPIO.output(AmpPin, GPIO.LOW)
+                GPIO.output(AmpPin, GPIO.HIGH)
                 self._return_200()
             elif self.path == "/AmpOFF":
                 self.logger.info("Stopping AMP")
-                GPIO.output(AmpPin, GPIO.HIGH)
+                GPIO.output(AmpPin, GPIO.LOW)
                 self._return_200()
             else:
                 return self._return_404()
@@ -86,7 +86,7 @@ if __name__ == '__main__':     # Program start from here
 
     GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
     GPIO.setup(AmpPin, GPIO.OUT)
-    GPIO.output(AmpPin, GPIO.HIGH)
+    GPIO.output(AmpPin, GPIO.LOW)
     logger.debug("Init Pin %i" % AmpPin)
 
     hs = MyHttpServer()

@@ -6,7 +6,7 @@ import urllib2
 
 
 url = 'http://rpi:9000/jsonrpc.js'
-player_name = 'LivingRoom'
+player_name = 'Kitchen'
 
 def js_request(player_id,params):
     json_string = {
