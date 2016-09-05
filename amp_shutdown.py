@@ -71,7 +71,7 @@ def serverstatus():
             print "player", player['name'], player['playerid']
 
 if __name__ == "__main__":
-    serverstatus()
+    #serverstatus()
     playerid = get_player(player_name)
     if not is_playing(playerid):
         print "Shutting down Amp"
