@@ -4,12 +4,12 @@
 import RPi.GPIO as GPIO
 import logging,sys, os
 import time
+import socket
 from threading import Thread, Event, Lock
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 
 http_server_port = 54321
 AmpPin = 40
-player = 'tpi'
 
 class MyHttpHandler(BaseHTTPRequestHandler):
     def __init__(self,  *args):
@@ -52,6 +52,9 @@ class MyHttpHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write("URL %s not found\n" % self.path)
 
+class HTTPServerV6(HTTPServer):
+  address_family = socket.AF_INET6
+
 class MyHttpServer:
     """ HTTP Server for changing the active player """
     def __init__(self,logger=None):
@@ -64,7 +67,7 @@ class MyHttpServer:
     def _select_player(self):
         """ Waits on http for the active player """
 
-	self.http_server = HTTPServer(('', http_server_port), MyHttpHandler)
+        self.http_server = HTTPServerV6(('::', http_server_port), MyHttpHandler)
 	self.logger.info('Http Server started on port %i' % http_server_port)
 	
         #Wait forever for incoming http requests
