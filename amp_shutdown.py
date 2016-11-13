@@ -5,9 +5,14 @@ import socket
 import urllib2
 
 
-url = 'http://rpi:9000/jsonrpc.js'
+server = 'rpi'
+server_port = 9000
 player_name = 'Kitchen'
+amp_port = 54321
 
+
+
+url = 'http://' . server . ':' . server_port . '/jsonrpc.js'
 def js_request(player_id,params):
     json_string = {
             "id": 1,
@@ -75,8 +80,7 @@ if __name__ == "__main__":
     playerid = get_player(player_name)
     if not is_playing(playerid):
         print "Shutting down Amp"
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('rpi',54321))
-        s.send('AmpOFF\n')
+        amp_host = 'spi'
+        urllib2.urlopen("http://%s:%i/AmpOFF" % (amp_host,amp_port)).read()
 
 
