@@ -11,6 +11,13 @@ from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 http_server_port = 54321
 AmpPin = 11
 
+class myWebOSHandler:
+  def __init__(self,logger=None):
+    """ checking TV for Status """
+
+  pass
+
+
 class MyHttpHandler(BaseHTTPRequestHandler):
     def __init__(self,  *args):
         """ change Player for encoder """
@@ -69,8 +76,8 @@ class MyHttpServer:
         """ Waits on http for the active player """
 
         self.http_server = HTTPServerV6(('::', http_server_port), MyHttpHandler)
-	self.logger.info('Http Server started on port %i' % http_server_port)
-	
+        self.logger.info('Http Server started on port %i' % http_server_port)
+
         #Wait forever for incoming http requests
         self.logger.debug("HTTP Server Thread started")
         try:

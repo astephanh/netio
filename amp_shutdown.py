@@ -8,6 +8,9 @@ import urllib2
 url = 'http://rpi:9000/jsonrpc.js'
 player_name = 'LivingRoom'
 
+amp_host = 'localhost'
+amp_port = 54321
+
 def js_request(player_id,params):
     json_string = {
             "id": 1,
@@ -51,7 +54,7 @@ def js_request2(params):
 
 def is_playing(playerid):
         mode = js_request(playerid,["mode","?"])['result']['_mode']
-        if mode == 'stop':
+        if mode == 'stop' or mode == "pause":
             return False
         return True
 
@@ -74,9 +77,6 @@ if __name__ == "__main__":
     #serverstatus()
     playerid = get_player(player_name)
     if not is_playing(playerid):
-        print "Shutting down Amp"
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('rpi',54321))
-        s.send('AmpOFF\n')
+        urllib2.urlopen("http://%s:%i/AmpOFF" % (amp_host,amp_port)).read()
 
 
