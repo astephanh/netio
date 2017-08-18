@@ -22,7 +22,7 @@ PlayerName = 'LivingRoom'
 
 # LG TV
 LG_ADRESS = "192.168.123.217"
-LG_PORT = 9080
+LG_PORT = 3000
 
 
 class MyHttpHandler(BaseHTTPRequestHandler):
@@ -106,7 +106,7 @@ class MyHttpServer:
 
 if __name__ == '__main__':     # Program start from here
 
-  logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
+  logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
   logger = logging.getLogger(__name__)
   tv_was_running = False
   pl_was_running = False
@@ -143,11 +143,13 @@ if __name__ == '__main__':     # Program start from here
       if lg.is_running():
         if not tv_was_running:
           logger.info("TV Turned ON")
-          tv_was_running = True
           GPIO.output(AmpPin, GPIO.HIGH)
-          pl.stop()
+          if pl.running:
+            pl.stop()
+          tv_was_running = True
+          pl_was_running = False
         else:
-          # make sure player ist always turned off
+          # make sure player ist turned off
           if pl.running:
             pl.stop()
       else:
@@ -156,7 +158,7 @@ if __name__ == '__main__':     # Program start from here
           GPIO.output(AmpPin, GPIO.LOW)
           tv_was_running = False
         else:
-          # turn amp on if player runs already
+          # turn amp on if player is running
           if pl.running and not pl_was_running:
             logger.info("Player %s running, Turning Amp ON" % PlayerName)
             GPIO.output(AmpPin, GPIO.HIGH)
