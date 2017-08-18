@@ -1,43 +1,37 @@
 #!/usr/bin/env python
 
 
-import RPi.GPIO as GPIO
-import logging,sys, os
+import logging
 import time
-import socket
 from threading import Thread, Event, Lock
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 
 import urllib2
 import subprocess
 
-LG_ADRESS="192.168.123.217"
-LG_PORT=9080
 
 class MyWebOSHandler:
-  def __init__(self,ip,logger=None):
+  def __init__(self,ip,port,logger=None):
     """ checking TV for Status """
     self.logger = logger or logging.getLogger(__name__)
     self.IP = ip
-    self.up = False
+    self.PORT = int(port)
     self.running = False
-    self.PORT = LG_PORT
 
     self.t_stop = Event()
+    self.lock = Lock()
     self.t = Thread(target=self.watch_tv, args=(1, self.t_stop))
     self.t.start()
-    self.logger.info("WebOSHandler started, TV-IP: %s" % LG_ADRESS)
+    self.logger.info("WebOSHandler started, TV-IP: %s" % self.IP)
 
   def _ping_ip(self):
     retcode = subprocess.call("ping" + " -c1 -w2 %s >/dev/null" % self.IP, shell=True)
     if(retcode == 0):
-      self.logger.debug("IP Adress up: %s" % self.IP)
-      self.up = True
       self._check_if_running()
     else:
-      self.logger.debug("IP Adress down")
-      self.up = False
+      self.logger.debug("TV offline")
+      self.lock.acquire()
       self.running = False
+      self.lock.release()
 
   def _check_if_running(self):
     """ check if tv is running """
@@ -45,15 +39,22 @@ class MyWebOSHandler:
       status = urllib2.urlopen("http://%s:%i/" % (self.IP,self.PORT), timeout=2).read() 
       if status.split("=")[1] == 'ok':
         self.logger.debug("TV running")
+        self.lock.acquire()
         self.running = True
+        self.lock.release()
       else:
         self.logger.debug("TV stopped")
+        self.lock.acquire()
         self.running = False
-    except urllib2.URLError, e:
+        self.lock.release()
+    except Exception, e:
       self.logger.debug("TV not ready")
+      self.lock.acquire()
+      self.running = False
+      self.lock.release()
 
   def is_running(self):
-    """ return True if TV is up and running """
+    """ return True if TV is running """
     return self.running
 
   def watch_tv(self, arg1, stop_event):
@@ -68,10 +69,19 @@ class MyWebOSHandler:
 
 if __name__ == '__main__':     # Program start from here
 
+  import sys
+
+  if len(sys.argv) < 3:
+    print '\n\t%s ip_address port\n' % sys.argv[0]
+    exit(0)
+
+  ip = sys.argv[1]
+  port = sys.argv[2]
   logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
   logger = logging.getLogger(__name__)
+  print 'Requested ip address:', ip
 
-  lg = MyWebOSHandler(LG_ADRESS)
+  lg = MyWebOSHandler(ip,port)
 
   try:
     while True:
