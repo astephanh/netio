@@ -7,4 +7,3 @@ amp_port = 54321
 
 urllib2.urlopen("http://%s:%i/AmpON" % (amp_host,amp_port)).read()
 
-

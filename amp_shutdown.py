@@ -5,14 +5,10 @@ import socket
 import urllib2
 
 
-server = 'rpi'
-server_port = 9000
-player_name = 'tpi'
+url = 'http://%s:%i/jsonrpc.js' % (server, server_port)
+amp_host = 'localhost'
 amp_port = 54321
 
-
-
-url = 'http://%s:%i/jsonrpc.js' % (server, server_port)
 def js_request(player_id,params):
     json_string = {
             "id": 1,
@@ -56,7 +52,7 @@ def js_request2(params):
 
 def is_playing(playerid):
         mode = js_request(playerid,["mode","?"])['result']['_mode']
-        if mode == 'stop':
+        if mode == 'stop' or mode == "pause":
             return False
         return True
 
@@ -76,11 +72,9 @@ def serverstatus():
             print "player", player['name'], player['playerid']
 
 if __name__ == "__main__":
-    serverstatus()
+    #serverstatus()
     playerid = get_player(player_name)
     if not is_playing(playerid):
-        print "Shutting down Amp"
-        amp_host = 'tpi'
         urllib2.urlopen("http://%s:%i/AmpOFF" % (amp_host,amp_port)).read()
 
 
