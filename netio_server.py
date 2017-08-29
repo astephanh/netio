@@ -31,6 +31,7 @@ class MyHttpHandler(BaseHTTPRequestHandler):
       self.logger = logger or logging.getLogger(__name__)
       BaseHTTPRequestHandler.__init__(self, *args)
       self.running = False
+      global lg
 
     def log_message(self, format, *args):
       return
@@ -45,9 +46,13 @@ class MyHttpHandler(BaseHTTPRequestHandler):
                 GPIO.output(AmpPin, GPIO.HIGH)
                 self._return_200()
             elif self.path == "/AmpOFF":
-                self.logger.info("Stopping AMP")
-                GPIO.output(AmpPin, GPIO.LOW)
-                self._return_200()
+                if not lg.is_running:
+                  self.logger.info("Stopping AMP")
+                  GPIO.output(AmpPin, GPIO.LOW)
+                  self._return_200()
+                else:
+                  self.logger.info("Stopping AMP - ignored")
+
             else:
                 return self._return_404()
         except ValueError:
@@ -106,7 +111,7 @@ class MyHttpServer:
 
 if __name__ == '__main__':     # Program start from here
 
-  logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
+  logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
   logger = logging.getLogger(__name__)
   tv_was_running = False
   pl_was_running = False
@@ -116,9 +121,10 @@ if __name__ == '__main__':     # Program start from here
   GPIO.output(AmpPin, GPIO.LOW)
   logger.debug("Init Pin %i" % AmpPin)
 
-  # wait on restart 
-  logger.info("Waiting 10 seconds to save amp")
-  time.sleep(10)
+  # wait on restart
+  if not logging.getLevelName(logger.getEffectiveLevel()) == 'DEBUG':
+    logger.info("Waiting 10 seconds to save amp")
+    time.sleep(10)
 
   lg = webos.MyWebOSHandler(LG_ADRESS,LG_PORT)
   pl = squeezebox.Player(Server,PlayerName)
@@ -144,13 +150,13 @@ if __name__ == '__main__':     # Program start from here
         if not tv_was_running:
           logger.info("TV Turned ON")
           GPIO.output(AmpPin, GPIO.HIGH)
-          if pl.running:
+          if pl.is_running:
             pl.stop()
           tv_was_running = True
           pl_was_running = False
         else:
           # make sure player ist turned off
-          if pl.running:
+          if pl.is_running:
             pl.stop()
       else:
         if tv_was_running:
@@ -159,12 +165,12 @@ if __name__ == '__main__':     # Program start from here
           tv_was_running = False
         else:
           # turn amp on if player is running
-          if pl.running and not pl_was_running:
+          if pl.is_running and not pl_was_running:
             logger.info("Player %s running, Turning Amp ON" % PlayerName)
             GPIO.output(AmpPin, GPIO.HIGH)
             pl_was_running = True
 
   except KeyboardInterrupt:  # When 'Ctrl+C' is pressed, the child program destroy() will be  executed.
-    signal_term_handler()
+    signal_term_handler(None, None)
 
 
