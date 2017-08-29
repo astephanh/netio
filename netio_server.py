@@ -150,13 +150,13 @@ if __name__ == '__main__':     # Program start from here
         if not tv_was_running:
           logger.info("TV Turned ON")
           GPIO.output(AmpPin, GPIO.HIGH)
-          if pl.is_running:
+          if pl.is_running():
             pl.stop()
           tv_was_running = True
           pl_was_running = False
         else:
           # make sure player ist turned off
-          if pl.is_running:
+          if pl.is_running():
             pl.stop()
       else:
         if tv_was_running:
@@ -165,7 +165,7 @@ if __name__ == '__main__':     # Program start from here
           tv_was_running = False
         else:
           # turn amp on if player is running
-          if pl.is_running and not pl_was_running:
+          if pl.is_running() and not pl_was_running:
             logger.info("Player %s running, Turning Amp ON" % PlayerName)
             GPIO.output(AmpPin, GPIO.HIGH)
             pl_was_running = True

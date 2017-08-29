@@ -13,6 +13,7 @@ class Player:
   def __init__(self,server,player,logger=None):
     self.logger = logger or logging.getLogger(__name__)
     self.url = 'http://%s:9000/jsonrpc.js' % server
+    self.server = server
     self.player = player
     self.playerid = None
     self.squeeze_running = False
@@ -31,7 +32,7 @@ class Player:
     self.t = Thread(target=self._watch_player, args=(1, self.t_stop))
     self.t.start()
     self.logger.debug("Server URL: %s" % self.url)
-    self.logger.info("PlayerThread started, PlayerName: %s" % self.player)
+    self.logger.info("SqueezeBoxHandler started, Server: %s, PlayerName: %s" % (self.server,self.player))
 
 
   def _watch_player(self, arg1, stop_event):
@@ -142,12 +143,13 @@ class Player:
 
   def stop(self):
     """ stop if playing """
-    resp = self.js_request_player(['stop'])
-    self.logger.debug("Player stop: %s" % resp)
+    if self.is_running():
+      resp = self.js_request_player(['stop'])
+      self.logger.debug("Player stop: %s" % resp)
 
   def destroy(self):
     self.t_stop.set()
-    self.logger.debug("PlayerThread stopped")
+    self.logger.debug("SqueezeBoxHandler stopped")
 
 
 if __name__ == "__main__":
