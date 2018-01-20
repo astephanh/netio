@@ -46,6 +46,7 @@ if __name__=='__main__':
         if amp_active:
           logger.info("Stopping AMP")
           relay.disable()
+          amp_active = False
 
   finally:
     relay.disable()
