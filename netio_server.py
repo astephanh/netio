@@ -3,7 +3,6 @@
 import logging,sys, os, time
 from serial import Serial
 from flask import Flask
-import squeezebox
 
 http_port = 54321
 serial_dev = '/dev/ttyUSB0'
@@ -53,10 +52,7 @@ if __name__=='__main__':
 
     try:
       relay = Relay(serial_dev)
-      squeeze = squeezebox.Player(squeeze_server,squeeze_player)
       app.run(debug=False, port=http_port)
-
     finally:
-      squeeze.destroy()
       relay.disable()
 

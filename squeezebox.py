@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import time
 import logging
@@ -6,7 +6,7 @@ from threading import Thread, Event, Lock
 
 import json
 import socket
-import urllib.request, urllib.error, urllib.parse
+import urllib2
 
 
 class Player:
@@ -31,7 +31,7 @@ class Player:
 
     self.t = Thread(target=self._watch_player, args=(1, self.t_stop))
     self.t.start()
-    self.logger.info("Server URL: %s" % self.url)
+    self.logger.debug("Server URL: %s" % self.url)
     self.logger.info("SqueezeBoxHandler started, Server: %s, PlayerName: %s" % (self.server,self.player))
 
 
@@ -72,7 +72,7 @@ class Player:
             self.playerid = player['playerid']
             self.lock.release()
             self.logger.info("Player %s has ID: %s" % (self.player,self.playerid))
-      except Exception as e:
+      except Exception, e:
         self.logger.debug("Squeeze Server Request failed: %s" % e)
 
       return self.playerid
@@ -92,7 +92,7 @@ class Player:
             self.logger.info("Player started")
             self.running = True
           self.logger.debug("Player running")
-      except Exception as e:
+      except Exception, e:
         self.logger.debug("Squeeze Player Request failed: %s" % e)
     else:
       self.logger.debug("Player not found")
@@ -106,12 +106,12 @@ class Player:
       }
 
       # craft the request for a url
-      req = urllib.request.Request(self.url, json.dumps(json_string), headers=self.header)
+      req = urllib2.Request(self.url, json.dumps(json_string), headers=self.header)
       try:
         # send the request
-        res = urllib.request.urlopen(req)
+        res = urllib2.urlopen(req)
         return  json.loads(res.read())
-      except urllib.error.URLError as e:
+      except urllib2.URLError, e:
         self.logger.debug("SqueezeBox Error: %s" % e)
         return False
       except Exception:
@@ -126,12 +126,12 @@ class Player:
       }
 
       # craft the request for a url
-      req = urllib.request.Request(self.url, json.dumps(json_string), headers=self.header)
+      req = urllib2.Request(self.url, json.dumps(json_string), headers=self.header)
       try:
         # send the request
-        res = urllib.request.urlopen(req)
+        res = urllib2.urlopen(req)
         return  json.loads(res.read())
-      except urllib.error.URLError as e:
+      except urllib2.URLError, e:
         self.logger.debug("SqueezeBox Error: %s" % e)
         return False
       except Exception:
@@ -156,7 +156,7 @@ if __name__ == "__main__":
   import sys
 
   if len(sys.argv) < 3:
-    print('\n\t%s squeezeboxserver playername\n' % sys.argv[0])
+    print '\n\t%s squeezeboxserver playername\n' % sys.argv[0]
     exit(0)
 
   logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
