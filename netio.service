@@ -1,5 +1,5 @@
 [Unit]
-Description = Jive Player Amp Controller
+Description = Squeeze Player Amp Controller
 
 # if you don't need the MySQL DB backend, this should be sufficient
 After = systemd-user-sessions.service network.target sound.target
@@ -8,7 +8,7 @@ After = systemd-user-sessions.service network.target sound.target
 User = root
 Group = root
 Type = simple
-ExecStart = /usr/src/astephanh/netio/netio_server.py
+ExecStart = /usr/src/netio/daemon.py
 Restart = on-abort
 RestartSec = 5
 
