@@ -35,18 +35,22 @@ if __name__=='__main__':
   pl = squeezebox.Player(Server, Playername)
 
   try:
+    off_count = 0
     while True:
       time.sleep(2)
       if pl.is_running():
         if not amp_active:
           logger.info("Starting AMP")
+          off_count = 0
           relay.enable()
           amp_active = True
       else:
-        if amp_active:
+        if amp_active and off_count == 3:
           logger.info("Stopping AMP")
           relay.disable()
           amp_active = False
+        else:
+          off_count +=1
 
   finally:
     relay.disable()
