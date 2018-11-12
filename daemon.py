@@ -6,7 +6,8 @@ from serial import Serial
 
 Server = 'hp'
 Playername = 'Office'
-serial_dev = '/dev/ttyUSB0'
+serial_dev = '/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0'
+countdown = 180
 
 class Relay():
   def __init__(self,device):
@@ -33,24 +34,26 @@ if __name__=='__main__':
   relay = Relay(serial_dev)
   amp_active = False
   pl = squeezebox.Player(Server, Playername)
+  off_count = 0
 
   try:
-    off_count = 0
     while True:
       time.sleep(2)
       if pl.is_running():
+        off_count = 0
         if not amp_active:
           logger.info("Starting AMP")
-          off_count = 0
           relay.enable()
           amp_active = True
       else:
-        if amp_active and off_count == 3:
-          logger.info("Stopping AMP")
-          relay.disable()
-          amp_active = False
-        else:
-          off_count +=1
+        if amp_active:
+          if off_count < countdown:
+            logger.info("sleeping {} von {}".format(off_count,countdown))
+            off_count +=1
+          else:
+            logger.info("Stopping AMP")
+            relay.disable()
+            amp_active = False
 
   finally:
     relay.disable()
