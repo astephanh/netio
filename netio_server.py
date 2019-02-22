@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 
 import RPi.GPIO as GPIO
-import logging,sys, os
+import logging
+import sys, os
 import time
 import signal
 import socket
@@ -46,7 +47,7 @@ class MyHttpHandler(BaseHTTPRequestHandler):
                 GPIO.output(AmpPin, GPIO.HIGH)
                 self._return_200()
             elif self.path == "/AmpOFF":
-                if not lg.is_running:
+                if not lg.is_running():
                   self.logger.info("Stopping AMP")
                   GPIO.output(AmpPin, GPIO.LOW)
                   self._return_200()
@@ -108,6 +109,11 @@ class MyHttpServer:
     def destroy(self):
         self.http_server.socket.close()
 
+class MyGPIO:
+  """ controlling GPIO PIN """
+
+  def __init__(self):
+      pass
 
 if __name__ == '__main__':     # Program start from here
 
@@ -160,7 +166,7 @@ if __name__ == '__main__':     # Program start from here
             pl.stop()
       else:
         if tv_was_running:
-          logger.info("TV Turned OFF")
+          logger.info("TV Turned OFF, Turning Amp OFF")
           GPIO.output(AmpPin, GPIO.LOW)
           tv_was_running = False
         else:
