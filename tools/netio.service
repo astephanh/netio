@@ -8,7 +8,7 @@ After = systemd-user-sessions.service network.target sound.target
 User = root
 Group = root
 Type = simple
-ExecStart = /usr/src/astephanh/netio/netio_server.py
+ExecStart = /usr/src/astephanh/jive-control/netio_server.py
 Restart = on-abort
 RestartSec = 5
 

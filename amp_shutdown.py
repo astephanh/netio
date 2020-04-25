@@ -5,7 +5,9 @@ import socket
 import urllib2
 
 
-url = 'http://%s:%i/jsonrpc.js' % (server, server_port)
+url = 'http://rpi:9000/jsonrpc.js'
+player_name = 'LivingRoom'
+
 amp_host = 'localhost'
 amp_port = 54321
 
